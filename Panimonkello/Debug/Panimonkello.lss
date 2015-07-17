@@ -1,0 +1,455 @@
+
+Panimonkello.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000332  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000015  00800060  00800060  000003a6  2**0
+                  ALLOC
+  2 .comment      00000030  00000000  00000000  000003a6  2**0
+                  CONTENTS, READONLY
+  3 .debug_aranges 00000028  00000000  00000000  000003d6  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   0000019f  00000000  00000000  000003fe  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_abbrev 00000089  00000000  00000000  0000059d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   0000010f  00000000  00000000  00000626  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_frame  0000007c  00000000  00000000  00000738  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_str    000001e1  00000000  00000000  000007b4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    000000de  00000000  00000000  00000995  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 00000018  00000000  00000000  00000a73  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	10 c0       	rjmp	.+32     	; 0x22 <__ctors_end>
+   2:	1f c0       	rjmp	.+62     	; 0x42 <__bad_interrupt>
+   4:	1e c0       	rjmp	.+60     	; 0x42 <__bad_interrupt>
+   6:	1d c0       	rjmp	.+58     	; 0x42 <__bad_interrupt>
+   8:	1c c0       	rjmp	.+56     	; 0x42 <__bad_interrupt>
+   a:	1b c0       	rjmp	.+54     	; 0x42 <__bad_interrupt>
+   c:	8f c0       	rjmp	.+286    	; 0x12c <__vector_6>
+   e:	19 c0       	rjmp	.+50     	; 0x42 <__bad_interrupt>
+  10:	18 c0       	rjmp	.+48     	; 0x42 <__bad_interrupt>
+  12:	17 c0       	rjmp	.+46     	; 0x42 <__bad_interrupt>
+  14:	16 c0       	rjmp	.+44     	; 0x42 <__bad_interrupt>
+  16:	15 c0       	rjmp	.+42     	; 0x42 <__bad_interrupt>
+  18:	14 c0       	rjmp	.+40     	; 0x42 <__bad_interrupt>
+  1a:	13 c0       	rjmp	.+38     	; 0x42 <__bad_interrupt>
+  1c:	12 c0       	rjmp	.+36     	; 0x42 <__bad_interrupt>
+  1e:	11 c0       	rjmp	.+34     	; 0x42 <__bad_interrupt>
+  20:	10 c0       	rjmp	.+32     	; 0x42 <__bad_interrupt>
+
+00000022 <__ctors_end>:
+  22:	11 24       	eor	r1, r1
+  24:	1f be       	out	0x3f, r1	; 63
+  26:	cf e5       	ldi	r28, 0x5F	; 95
+  28:	d2 e0       	ldi	r29, 0x02	; 2
+  2a:	de bf       	out	0x3e, r29	; 62
+  2c:	cd bf       	out	0x3d, r28	; 61
+
+0000002e <__do_clear_bss>:
+  2e:	20 e0       	ldi	r18, 0x00	; 0
+  30:	a0 e6       	ldi	r26, 0x60	; 96
+  32:	b0 e0       	ldi	r27, 0x00	; 0
+  34:	01 c0       	rjmp	.+2      	; 0x38 <.do_clear_bss_start>
+
+00000036 <.do_clear_bss_loop>:
+  36:	1d 92       	st	X+, r1
+
+00000038 <.do_clear_bss_start>:
+  38:	a5 37       	cpi	r26, 0x75	; 117
+  3a:	b2 07       	cpc	r27, r18
+  3c:	e1 f7       	brne	.-8      	; 0x36 <.do_clear_bss_loop>
+  3e:	02 d0       	rcall	.+4      	; 0x44 <main>
+  40:	76 c1       	rjmp	.+748    	; 0x32e <_exit>
+
+00000042 <__bad_interrupt>:
+  42:	de cf       	rjmp	.-68     	; 0x0 <__vectors>
+
+00000044 <main>:
+uint32_t idlecounter;
+uint8_t a;
+
+
+
+int main(void) {
+  44:	cf 93       	push	r28
+  46:	df 93       	push	r29
+  48:	cd b7       	in	r28, 0x3d	; 61
+  4a:	de b7       	in	r29, 0x3e	; 62
+	
+	PORTA = 0x00;
+  4c:	8b e3       	ldi	r24, 0x3B	; 59
+  4e:	90 e0       	ldi	r25, 0x00	; 0
+  50:	fc 01       	movw	r30, r24
+  52:	10 82       	st	Z, r1
+	DDRA = 0x81;
+  54:	8a e3       	ldi	r24, 0x3A	; 58
+  56:	90 e0       	ldi	r25, 0x00	; 0
+  58:	21 e8       	ldi	r18, 0x81	; 129
+  5a:	fc 01       	movw	r30, r24
+  5c:	20 83       	st	Z, r18
+	
+	// system clock
+	CLKPR = 1 << CLKPCE;		// enable prescaler;
+  5e:	86 e4       	ldi	r24, 0x46	; 70
+  60:	90 e0       	ldi	r25, 0x00	; 0
+  62:	20 e8       	ldi	r18, 0x80	; 128
+  64:	fc 01       	movw	r30, r24
+  66:	20 83       	st	Z, r18
+	CLKPR = 0x00;				// prescaler = 1;
+  68:	86 e4       	ldi	r24, 0x46	; 70
+  6a:	90 e0       	ldi	r25, 0x00	; 0
+  6c:	fc 01       	movw	r30, r24
+  6e:	10 82       	st	Z, r1
+
+	// Timer 1
+	TCCR1A = 0x00;
+  70:	8f e4       	ldi	r24, 0x4F	; 79
+  72:	90 e0       	ldi	r25, 0x00	; 0
+  74:	fc 01       	movw	r30, r24
+  76:	10 82       	st	Z, r1
+	TCCR1B = 0x09;				// Clear on OCR1A match; prescaler = 1
+  78:	8e e4       	ldi	r24, 0x4E	; 78
+  7a:	90 e0       	ldi	r25, 0x00	; 0
+  7c:	29 e0       	ldi	r18, 0x09	; 9
+  7e:	fc 01       	movw	r30, r24
+  80:	20 83       	st	Z, r18
+	OCR1AH = TIM1_COMPVAL_H;	// set TIMER1 compare reg A to get 1 ms timer interrupts on 16 MHz clock
+  82:	8b e4       	ldi	r24, 0x4B	; 75
+  84:	90 e0       	ldi	r25, 0x00	; 0
+  86:	2e e3       	ldi	r18, 0x3E	; 62
+  88:	fc 01       	movw	r30, r24
+  8a:	20 83       	st	Z, r18
+	OCR1AL = TIM1_COMPVAL_L;
+  8c:	8a e4       	ldi	r24, 0x4A	; 74
+  8e:	90 e0       	ldi	r25, 0x00	; 0
+  90:	20 e8       	ldi	r18, 0x80	; 128
+  92:	fc 01       	movw	r30, r24
+  94:	20 83       	st	Z, r18
+	TIMSK1 = 1 << OCIE1A;		// enable compare match A interrupts
+  96:	8c e2       	ldi	r24, 0x2C	; 44
+  98:	90 e0       	ldi	r25, 0x00	; 0
+  9a:	22 e0       	ldi	r18, 0x02	; 2
+  9c:	fc 01       	movw	r30, r24
+  9e:	20 83       	st	Z, r18
+	
+	ms_count = 0;
+  a0:	10 92 61 00 	sts	0x0061, r1
+  a4:	10 92 60 00 	sts	0x0060, r1
+	min_count = 0;
+  a8:	10 92 63 00 	sts	0x0063, r1
+  ac:	10 92 62 00 	sts	0x0062, r1
+	pulse_count = 0;
+  b0:	10 92 65 00 	sts	0x0065, r1
+  b4:	10 92 64 00 	sts	0x0064, r1
+	interval_count = 0;
+  b8:	10 92 67 00 	sts	0x0067, r1
+  bc:	10 92 66 00 	sts	0x0066, r1
+	reset = false;
+  c0:	10 92 68 00 	sts	0x0068, r1
+	debouncer = 0;
+  c4:	10 92 6e 00 	sts	0x006E, r1
+  c8:	10 92 6d 00 	sts	0x006D, r1
+	
+	idlecounter = 0;
+  cc:	10 92 70 00 	sts	0x0070, r1
+  d0:	10 92 71 00 	sts	0x0071, r1
+  d4:	10 92 72 00 	sts	0x0072, r1
+  d8:	10 92 73 00 	sts	0x0073, r1
+	
+//	sei();
+	__asm__ __volatile__ ("sei" ::: "memory");
+  dc:	78 94       	sei
+	for ( ; ; ) {
+		idlecounter++;
+  de:	80 91 70 00 	lds	r24, 0x0070
+  e2:	90 91 71 00 	lds	r25, 0x0071
+  e6:	a0 91 72 00 	lds	r26, 0x0072
+  ea:	b0 91 73 00 	lds	r27, 0x0073
+  ee:	01 96       	adiw	r24, 0x01	; 1
+  f0:	a1 1d       	adc	r26, r1
+  f2:	b1 1d       	adc	r27, r1
+  f4:	80 93 70 00 	sts	0x0070, r24
+  f8:	90 93 71 00 	sts	0x0071, r25
+  fc:	a0 93 72 00 	sts	0x0072, r26
+ 100:	b0 93 73 00 	sts	0x0073, r27
+		if ( idlecounter > 1000 ) {
+ 104:	80 91 70 00 	lds	r24, 0x0070
+ 108:	90 91 71 00 	lds	r25, 0x0071
+ 10c:	a0 91 72 00 	lds	r26, 0x0072
+ 110:	b0 91 73 00 	lds	r27, 0x0073
+ 114:	89 3e       	cpi	r24, 0xE9	; 233
+ 116:	f3 e0       	ldi	r31, 0x03	; 3
+ 118:	9f 07       	cpc	r25, r31
+ 11a:	a1 05       	cpc	r26, r1
+ 11c:	b1 05       	cpc	r27, r1
+ 11e:	28 f0       	brcs	.+10     	; 0x12a <main+0xe6>
+			a++;
+ 120:	80 91 74 00 	lds	r24, 0x0074
+ 124:	8f 5f       	subi	r24, 0xFF	; 255
+ 126:	80 93 74 00 	sts	0x0074, r24
+uint32_t idlecounter;
+uint8_t a;
+
+
+
+int main(void) {
+ 12a:	d9 cf       	rjmp	.-78     	; 0xde <main+0x9a>
+
+0000012c <__vector_6>:
+		}
+	}
+}
+
+// Timer 1 compare match A interrupt handler
+ISR(TIM1_COMPA_vect) {
+ 12c:	1f 92       	push	r1
+ 12e:	0f 92       	push	r0
+ 130:	00 90 5f 00 	lds	r0, 0x005F
+ 134:	0f 92       	push	r0
+ 136:	11 24       	eor	r1, r1
+ 138:	2f 93       	push	r18
+ 13a:	3f 93       	push	r19
+ 13c:	8f 93       	push	r24
+ 13e:	9f 93       	push	r25
+ 140:	ef 93       	push	r30
+ 142:	ff 93       	push	r31
+ 144:	cf 93       	push	r28
+ 146:	df 93       	push	r29
+ 148:	cd b7       	in	r28, 0x3d	; 61
+ 14a:	de b7       	in	r29, 0x3e	; 62
+	// debug pulse PA0; change state at every iteration
+	db = !db & 0x01;
+ 14c:	90 91 6f 00 	lds	r25, 0x006F
+ 150:	81 e0       	ldi	r24, 0x01	; 1
+ 152:	99 23       	and	r25, r25
+ 154:	09 f0       	breq	.+2      	; 0x158 <__vector_6+0x2c>
+ 156:	80 e0       	ldi	r24, 0x00	; 0
+ 158:	80 93 6f 00 	sts	0x006F, r24
+	PORTA = ( PINA & 0xfe ) | db;
+ 15c:	8b e3       	ldi	r24, 0x3B	; 59
+ 15e:	90 e0       	ldi	r25, 0x00	; 0
+ 160:	29 e3       	ldi	r18, 0x39	; 57
+ 162:	30 e0       	ldi	r19, 0x00	; 0
+ 164:	f9 01       	movw	r30, r18
+ 166:	20 81       	ld	r18, Z
+ 168:	32 2f       	mov	r19, r18
+ 16a:	3e 7f       	andi	r19, 0xFE	; 254
+ 16c:	20 91 6f 00 	lds	r18, 0x006F
+ 170:	23 2b       	or	r18, r19
+ 172:	fc 01       	movw	r30, r24
+ 174:	20 83       	st	Z, r18
+	
+	// timing for the minutes counter
+	ms_count++;
+ 176:	80 91 60 00 	lds	r24, 0x0060
+ 17a:	90 91 61 00 	lds	r25, 0x0061
+ 17e:	01 96       	adiw	r24, 0x01	; 1
+ 180:	90 93 61 00 	sts	0x0061, r25
+ 184:	80 93 60 00 	sts	0x0060, r24
+	if ( ms_count == 60000 ) {
+ 188:	80 91 60 00 	lds	r24, 0x0060
+ 18c:	90 91 61 00 	lds	r25, 0x0061
+ 190:	80 36       	cpi	r24, 0x60	; 96
+ 192:	fa ee       	ldi	r31, 0xEA	; 234
+ 194:	9f 07       	cpc	r25, r31
+ 196:	69 f4       	brne	.+26     	; 0x1b2 <__vector_6+0x86>
+		ms_count = 0;
+ 198:	10 92 61 00 	sts	0x0061, r1
+ 19c:	10 92 60 00 	sts	0x0060, r1
+		min_count++;
+ 1a0:	80 91 62 00 	lds	r24, 0x0062
+ 1a4:	90 91 63 00 	lds	r25, 0x0063
+ 1a8:	01 96       	adiw	r24, 0x01	; 1
+ 1aa:	90 93 63 00 	sts	0x0063, r25
+ 1ae:	80 93 62 00 	sts	0x0062, r24
+	}
+
+	// timing for solenoid pulse inititation interval (enforce minimum interval)
+	if ( interval_count ) {
+ 1b2:	80 91 66 00 	lds	r24, 0x0066
+ 1b6:	90 91 67 00 	lds	r25, 0x0067
+ 1ba:	00 97       	sbiw	r24, 0x00	; 0
+ 1bc:	51 f0       	breq	.+20     	; 0x1d2 <__vector_6+0xa6>
+		interval_count--;
+ 1be:	80 91 66 00 	lds	r24, 0x0066
+ 1c2:	90 91 67 00 	lds	r25, 0x0067
+ 1c6:	01 97       	sbiw	r24, 0x01	; 1
+ 1c8:	90 93 67 00 	sts	0x0067, r25
+ 1cc:	80 93 66 00 	sts	0x0066, r24
+ 1d0:	1e c0       	rjmp	.+60     	; 0x20e <__vector_6+0xe2>
+	}
+	else if ( min_count ) {
+ 1d2:	80 91 62 00 	lds	r24, 0x0062
+ 1d6:	90 91 63 00 	lds	r25, 0x0063
+ 1da:	00 97       	sbiw	r24, 0x00	; 0
+ 1dc:	c1 f0       	breq	.+48     	; 0x20e <__vector_6+0xe2>
+		min_count--;
+ 1de:	80 91 62 00 	lds	r24, 0x0062
+ 1e2:	90 91 63 00 	lds	r25, 0x0063
+ 1e6:	01 97       	sbiw	r24, 0x01	; 1
+ 1e8:	90 93 63 00 	sts	0x0063, r25
+ 1ec:	80 93 62 00 	sts	0x0062, r24
+		pulse_count = PULSE_MS;
+ 1f0:	88 ec       	ldi	r24, 0xC8	; 200
+ 1f2:	90 e0       	ldi	r25, 0x00	; 0
+ 1f4:	90 93 65 00 	sts	0x0065, r25
+ 1f8:	80 93 64 00 	sts	0x0064, r24
+		PORTA = PINA | 0x80;	// set solenoid output for another clock tick
+ 1fc:	8b e3       	ldi	r24, 0x3B	; 59
+ 1fe:	90 e0       	ldi	r25, 0x00	; 0
+ 200:	29 e3       	ldi	r18, 0x39	; 57
+ 202:	30 e0       	ldi	r19, 0x00	; 0
+ 204:	f9 01       	movw	r30, r18
+ 206:	20 81       	ld	r18, Z
+ 208:	20 68       	ori	r18, 0x80	; 128
+ 20a:	fc 01       	movw	r30, r24
+ 20c:	20 83       	st	Z, r18
+	}
+	
+	// timing for the clock solenoid on-pulse
+	if ( pulse_count ) {
+ 20e:	80 91 64 00 	lds	r24, 0x0064
+ 212:	90 91 65 00 	lds	r25, 0x0065
+ 216:	00 97       	sbiw	r24, 0x00	; 0
+ 218:	a1 f0       	breq	.+40     	; 0x242 <__vector_6+0x116>
+		pulse_count--;
+ 21a:	80 91 64 00 	lds	r24, 0x0064
+ 21e:	90 91 65 00 	lds	r25, 0x0065
+ 222:	01 97       	sbiw	r24, 0x01	; 1
+ 224:	90 93 65 00 	sts	0x0065, r25
+ 228:	80 93 64 00 	sts	0x0064, r24
+		if ( pulse_count == 1 ) reset = true;
+ 22c:	80 91 64 00 	lds	r24, 0x0064
+ 230:	90 91 65 00 	lds	r25, 0x0065
+ 234:	81 30       	cpi	r24, 0x01	; 1
+ 236:	91 05       	cpc	r25, r1
+ 238:	c9 f4       	brne	.+50     	; 0x26c <__stack+0xd>
+ 23a:	81 e0       	ldi	r24, 0x01	; 1
+ 23c:	80 93 68 00 	sts	0x0068, r24
+ 240:	15 c0       	rjmp	.+42     	; 0x26c <__stack+0xd>
+	}
+	else if ( reset ) {
+ 242:	80 91 68 00 	lds	r24, 0x0068
+ 246:	88 23       	and	r24, r24
+ 248:	89 f0       	breq	.+34     	; 0x26c <__stack+0xd>
+		PORTA = PINA & 0x7f;	// reset solenoid output when pulse has expired
+ 24a:	8b e3       	ldi	r24, 0x3B	; 59
+ 24c:	90 e0       	ldi	r25, 0x00	; 0
+ 24e:	29 e3       	ldi	r18, 0x39	; 57
+ 250:	30 e0       	ldi	r19, 0x00	; 0
+ 252:	f9 01       	movw	r30, r18
+ 254:	20 81       	ld	r18, Z
+ 256:	2f 77       	andi	r18, 0x7F	; 127
+ 258:	fc 01       	movw	r30, r24
+ 25a:	20 83       	st	Z, r18
+		interval_count = INTERVAL_MS;
+ 25c:	88 ee       	ldi	r24, 0xE8	; 232
+ 25e:	93 e0       	ldi	r25, 0x03	; 3
+ 260:	90 93 67 00 	sts	0x0067, r25
+ 264:	80 93 66 00 	sts	0x0066, r24
+		reset = false;
+ 268:	10 92 68 00 	sts	0x0068, r1
+	}
+
+	// timing for debouncing the adjustment button
+	btn = ( PINA & 0x08 ) >> 3;
+ 26c:	89 e3       	ldi	r24, 0x39	; 57
+ 26e:	90 e0       	ldi	r25, 0x00	; 0
+ 270:	fc 01       	movw	r30, r24
+ 272:	80 81       	ld	r24, Z
+ 274:	88 2f       	mov	r24, r24
+ 276:	90 e0       	ldi	r25, 0x00	; 0
+ 278:	88 70       	andi	r24, 0x08	; 8
+ 27a:	99 27       	eor	r25, r25
+ 27c:	95 95       	asr	r25
+ 27e:	87 95       	ror	r24
+ 280:	95 95       	asr	r25
+ 282:	87 95       	ror	r24
+ 284:	95 95       	asr	r25
+ 286:	87 95       	ror	r24
+ 288:	80 93 69 00 	sts	0x0069, r24
+	if ( btn == prev_btn ) {
+ 28c:	90 91 69 00 	lds	r25, 0x0069
+ 290:	80 91 6a 00 	lds	r24, 0x006A
+ 294:	98 17       	cp	r25, r24
+ 296:	89 f4       	brne	.+34     	; 0x2ba <__stack+0x5b>
+		if ( debouncer < BOUNCE_CNT ) debouncer++;
+ 298:	80 91 6d 00 	lds	r24, 0x006D
+ 29c:	90 91 6e 00 	lds	r25, 0x006E
+ 2a0:	84 36       	cpi	r24, 0x64	; 100
+ 2a2:	91 05       	cpc	r25, r1
+ 2a4:	70 f4       	brcc	.+28     	; 0x2c2 <__stack+0x63>
+ 2a6:	80 91 6d 00 	lds	r24, 0x006D
+ 2aa:	90 91 6e 00 	lds	r25, 0x006E
+ 2ae:	01 96       	adiw	r24, 0x01	; 1
+ 2b0:	90 93 6e 00 	sts	0x006E, r25
+ 2b4:	80 93 6d 00 	sts	0x006D, r24
+ 2b8:	04 c0       	rjmp	.+8      	; 0x2c2 <__stack+0x63>
+	}
+	else debouncer = 0;
+ 2ba:	10 92 6e 00 	sts	0x006E, r1
+ 2be:	10 92 6d 00 	sts	0x006D, r1
+	prev_btn = btn;
+ 2c2:	80 91 69 00 	lds	r24, 0x0069
+ 2c6:	80 93 6a 00 	sts	0x006A, r24
+	if ( debouncer == BOUNCE_CNT ) {
+ 2ca:	80 91 6d 00 	lds	r24, 0x006D
+ 2ce:	90 91 6e 00 	lds	r25, 0x006E
+ 2d2:	84 36       	cpi	r24, 0x64	; 100
+ 2d4:	91 05       	cpc	r25, r1
+ 2d6:	41 f4       	brne	.+16     	; 0x2e8 <__stack+0x89>
+		prev_btnstate = btnstate;
+ 2d8:	80 91 6b 00 	lds	r24, 0x006B
+ 2dc:	80 93 6c 00 	sts	0x006C, r24
+		btnstate = btn;
+ 2e0:	80 91 69 00 	lds	r24, 0x0069
+ 2e4:	80 93 6b 00 	sts	0x006B, r24
+	}
+	
+	// manual adjustment
+	if ( ( btnstate == 0 ) && ( prev_btnstate == 1 ) ) {
+ 2e8:	80 91 6b 00 	lds	r24, 0x006B
+ 2ec:	88 23       	and	r24, r24
+ 2ee:	89 f4       	brne	.+34     	; 0x312 <__stack+0xb3>
+ 2f0:	80 91 6c 00 	lds	r24, 0x006C
+ 2f4:	81 30       	cpi	r24, 0x01	; 1
+ 2f6:	69 f4       	brne	.+26     	; 0x312 <__stack+0xb3>
+		ms_count = 0;
+ 2f8:	10 92 61 00 	sts	0x0061, r1
+ 2fc:	10 92 60 00 	sts	0x0060, r1
+		min_count++;
+ 300:	80 91 62 00 	lds	r24, 0x0062
+ 304:	90 91 63 00 	lds	r25, 0x0063
+ 308:	01 96       	adiw	r24, 0x01	; 1
+ 30a:	90 93 63 00 	sts	0x0063, r25
+ 30e:	80 93 62 00 	sts	0x0062, r24
+	}
+ 312:	df 91       	pop	r29
+ 314:	cf 91       	pop	r28
+ 316:	ff 91       	pop	r31
+ 318:	ef 91       	pop	r30
+ 31a:	9f 91       	pop	r25
+ 31c:	8f 91       	pop	r24
+ 31e:	3f 91       	pop	r19
+ 320:	2f 91       	pop	r18
+ 322:	0f 90       	pop	r0
+ 324:	00 92 5f 00 	sts	0x005F, r0
+ 328:	0f 90       	pop	r0
+ 32a:	1f 90       	pop	r1
+ 32c:	18 95       	reti
+
+0000032e <_exit>:
+ 32e:	f8 94       	cli
+
+00000330 <__stop_program>:
+ 330:	ff cf       	rjmp	.-2      	; 0x330 <__stop_program>
